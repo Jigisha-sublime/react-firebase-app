@@ -41,7 +41,7 @@ const Post = (props) => {
         <Avatar className='post_avatar' src='/static/' alt="Rj" />
         <h3>{userName}</h3>
       </div>
-      <img className="post_img" src={imageUrl} />
+      <img className="post_img" src={imageUrl} alt="post" />
       <h4 className="post_text"><strong>{userName} : </strong> {caption}</h4>
       <div className="post_comments">
         {

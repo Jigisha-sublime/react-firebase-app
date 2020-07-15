@@ -1,52 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { Button, Input, Modal } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import InstagramEmbed from 'react-instagram-embed';
 
-import Post from './Post';
 import { db, auth } from '../firebaseconfig';
+import Post from './Post';
 import ImageUpload from './ImageUpload';
+import SignUpModal from './SignUpModal';
+import SignInModal from './SignInModal';
 
 
-
-function rand() {
-  return Math.round(Math.random() * 20) - 10;
-}
-
-function getModalStyle() {
-  const top = 50 + rand();
-  const left = 50 + rand();
-
-  return {
-    top: `${top}%`,
-    left: `${left}%`,
-    transform: `translate(-${top}%, -${left}%)`,
-  };
-}
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    position: 'absolute',
-    width: 400,
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  },
-}));
 
 function Main() {
 
-  const classes = useStyles()
-  const [modalStyle] = useState(getModalStyle)
-
+  const initialState = {
+    email: '',
+    password: '',
+    userName: ''
+  }
   const [open, setOpen] = useState(false)
   const [openSignIn, setOpenSignIn] = useState(false)
   const [posts, setPosts] = useState([]);
-  const [userName, setUserName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [state, setState] = useState(initialState)
   const [user, setUser] = useState(null)
+  const { email, password, userName } = state
 
   useEffect(() => {
     db.collection("posts").orderBy('timestamp', 'desc').onSnapshot(snapshot => {
@@ -93,72 +69,36 @@ function Main() {
 
   }
 
+  const toggleOpen = () => {
+    setOpen(!open)
+  }
+  const toggleSignIn = () => {
+    setOpenSignIn(!openSignIn)
+  }
+  const setValueChange = (e) => {
+    setState({
+      ...state,
+      [e.target.name]: e.target.value
+    })
+  }
+
+
   return (
     <div className="app">
-      <Modal
+      <SignUpModal
         open={open}
-        onClose={() => setOpen(!open)}
-      >
-        <div style={modalStyle} className={classes.paper}>
-          <form className="app_signup">
-            <center>
-              <img
-                className="app_headerImage"
-                src='https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTkPV11Xh8V16t7ud6uPm7w1pROwvPcJzxPOw&usqp=CAU'
-                alt="logo"
-              />
-            </center>
-            <Input
-              placeholder="User Name"
-              type="text"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-            />
-            <Input
-              placeholder="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              placeholder="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button onClick={signUp}>Sign Up</Button>
-          </form>
-        </div>
-      </Modal>
-      <Modal
-        open={openSignIn}
-        onClose={() => setOpenSignIn(!openSignIn)}
-      >
-        <div style={modalStyle} className={classes.paper}>
-          <form className="app_signup">
-            <center>
-              <img
-                className="app_headerImage"
-                src='https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTkPV11Xh8V16t7ud6uPm7w1pROwvPcJzxPOw&usqp=CAU'
-                alt="logo"
-              />
-            </center>
-            <Input
-              placeholder="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              placeholder="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button onClick={signIn}>Sign In</Button>
-          </form>
-        </div>
-      </Modal>
+        signUp={signUp}
+        toggleOpen={toggleOpen}
+        setValueChange={setValueChange}
+        state={state}
+      />
+      <SignInModal
+        openSignIn={openSignIn}
+        signIn={signIn}
+        toggleSignIn={toggleSignIn}
+        setValueChange={setValueChange}
+        state={state} />
+
       <div className="app_header">
         <img
           className="app_headerImage"
